@@ -3,8 +3,7 @@ name: Space Filling Curve CI
 on:
   push:
     branches:
-      - main
-      - release/*
+      - dev/github-actions
   pull_request:
     branches:
       - main
