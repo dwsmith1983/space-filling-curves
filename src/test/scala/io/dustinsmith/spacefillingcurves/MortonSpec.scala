@@ -133,4 +133,19 @@ class MortonSpec extends AnyWordSpec with Matchers with PrivateMethodTester with
       assert(resultChecksum == expectedChecksum)
     }
   }
+
+  "getBinaryDF mixed columns" should {
+
+    "return the original dataframe with the binary columns for numeric and string" in {
+      val privateMethod: PrivateMethod[DataFrame] = PrivateMethod[DataFrame]('getBinaryDF)
+      val resultDF: DataFrame = mortonMixed invokePrivate privateMethod()
+      val resultChecksum: Int = HashDataFrame.checksumDataFrame(resultDF, 1)
+      val expectedDF: DataFrame = spark.read
+        .format("parquet")
+        .load(getClass.getResource("/mixed_binary").getPath)
+      val expectedChecksum: Int = HashDataFrame.checksumDataFrame(expectedDF, 1)
+
+      assert(resultChecksum == expectedChecksum)
+    }
+  }
 }
