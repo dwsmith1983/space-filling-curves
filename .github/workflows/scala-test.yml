@@ -14,13 +14,16 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: ['11']
 
     steps:
       - name: Set up JVM
       - uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
-          java-version: '11'
+          java-version: ${{ matrix.java }}
 
       - name: Run tests
         run: sbt -mem 2048 test
