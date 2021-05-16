@@ -24,7 +24,7 @@ import org.scalatest.PrivateMethodTester
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{DataFrame, SparkSession}
 
 
 class MortonSpec extends AnyWordSpec with Matchers with PrivateMethodTester with BeforeAndAfterAll {
@@ -35,8 +35,44 @@ class MortonSpec extends AnyWordSpec with Matchers with PrivateMethodTester with
     .master("local[2]")
     .getOrCreate()
 
+  import spark.implicits._
+
   override def afterAll(): Unit = {
     new Directory(new File("spark-warehouse")).deleteRecursively
     super.afterAll()
+  }
+
+  val df: DataFrame = Seq(
+    (1, 1, 12.23, "a"),
+    (4, 9, 5.05, "b"),
+    (3, 0, 1.23, "c"),
+    (2, 2, 100.4, "d"),
+    (1, 25, 3.25, "a")
+  ).toDF("x", "y", "amnt", "id")
+  val mortonNum: Morton = new Morton(df, Array("x", "y"))
+  val mortonMixed: Morton = new Morton(df, Array("x", "id", "amnt"))
+
+  "matchColumnWithType numeric columns" should {
+
+    "return a tuple with column and data type" in {
+      val privateMethod: PrivateMethod[Seq[(String, String)]] =
+        PrivateMethod[Seq[(String, String)]]('matchColumnWithType)
+      val resultArray: Seq[(String, String)] = mortonNum invokePrivate privateMethod()
+      val expectedArray: Seq[(String, String)] = Seq(("x", "IntegerType"), ("y", "IntegerType"))
+
+      assert(resultArray == expectedArray)
+    }
+  }
+
+  "matchColumnWithType mixed columns" should {
+
+    "return a tuple with column and data type" in {
+      val privateMethod: PrivateMethod[Seq[(String, String)]] =
+        PrivateMethod[Seq[(String, String)]]('matchColumnWithType)
+      val resultArray: Seq[(String, String)] = mortonMixed invokePrivate privateMethod()
+      val expectedArray: Seq[(String, String)] = Seq(("x", "IntegerType"), ("amnt", "DoubleType"), ("id", "StringType"))
+
+      assert(resultArray == expectedArray)
+    }
   }
 }
