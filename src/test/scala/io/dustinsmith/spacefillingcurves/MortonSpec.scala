@@ -91,7 +91,7 @@ class MortonSpec extends AnyWordSpec with Matchers with PrivateMethodTester with
 
   "getNonStringBinaryDF num columns" should {
 
-    "return the original dataframe with the binary columns" in {
+    "return the original dataframe with the binary columns for numeric" in {
       val privateMethod: PrivateMethod[DataFrame] = PrivateMethod[DataFrame]('getNonStringBinaryDF)
       val resultDF: DataFrame = mortonNum invokePrivate privateMethod()
       val resultChecksum: Int = HashDataFrame.checksumDataFrame(resultDF, 1)
@@ -106,13 +106,28 @@ class MortonSpec extends AnyWordSpec with Matchers with PrivateMethodTester with
 
   "getBinaryDF str columns" should {
 
-    "return the original dataframe with the binary columns" in {
+    "return the original dataframe with the binary columns for strings" in {
       val privateMethod: PrivateMethod[DataFrame] = PrivateMethod[DataFrame]('getBinaryDF)
       val resultDF: DataFrame = mortonStr invokePrivate privateMethod()
       val resultChecksum: Int = HashDataFrame.checksumDataFrame(resultDF, 1)
       val expectedDF: DataFrame = spark.read
         .format("parquet")
         .load(getClass.getResource("/str_binary").getPath)
+      val expectedChecksum: Int = HashDataFrame.checksumDataFrame(expectedDF, 1)
+
+      assert(resultChecksum == expectedChecksum)
+    }
+  }
+
+  "getBinaryDF num columns" should {
+
+    "return the original dataframe with the binary columns for numeric" in {
+      val privateMethod: PrivateMethod[DataFrame] = PrivateMethod[DataFrame]('getBinaryDF)
+      val resultDF: DataFrame = mortonNum invokePrivate privateMethod()
+      val resultChecksum: Int = HashDataFrame.checksumDataFrame(resultDF, 1)
+      val expectedDF: DataFrame = spark.read
+        .format("parquet")
+        .load(getClass.getResource("/numeric_binary").getPath)
       val expectedChecksum: Int = HashDataFrame.checksumDataFrame(expectedDF, 1)
 
       assert(resultChecksum == expectedChecksum)
