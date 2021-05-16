@@ -174,9 +174,6 @@ class MortonSpec extends AnyWordSpec with Matchers with PrivateMethodTester with
   "mortonIndex" should {
 
     "return a dataframe with the column z_index" in {
-      val numDF: DataFrame = spark.read
-        .format("parquet")
-        .load(getClass.getResource("/numeric_binary").getPath)
       val privateMethod: PrivateMethod[DataFrame] = PrivateMethod[DataFrame]('mortonIndex)
       val resultDF: DataFrame = mortonNum invokePrivate privateMethod()
       val resultChecksum: Int = HashDataFrame.checksumDataFrame(resultDF, 1)
