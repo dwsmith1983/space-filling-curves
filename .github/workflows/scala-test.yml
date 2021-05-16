@@ -14,13 +14,13 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Set up JVM
-      - uses: actions/setup-java@v1
-        with:
-          java-version: '11'
-
-      - name: Run tests
       - uses: actions/checkout@v2
-        run: sbt -mem 2048 test
+      - name: Run tests
+        run: sbt coverage test
+      - name: Coverage Report
+        run: sbt coverageReport
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          fail_ci_if_error: true
