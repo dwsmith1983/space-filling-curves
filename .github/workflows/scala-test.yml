@@ -10,6 +10,8 @@ on:
       - main
 
 jobs:
+  build:
+
   test:
 
     runs-on: ubuntu-latest
@@ -22,4 +24,6 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
       - name: Run tests
-        run: sbt test
+        run: |
+          sbt compile
+          sbt test
