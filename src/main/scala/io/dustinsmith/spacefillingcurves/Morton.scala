@@ -34,6 +34,10 @@ import org.apache.spark.sql.functions._
 class Morton(val df: DataFrame, val cols: Array[String]) extends LazyLogging with SparkSessionWrapper {
   import spark.implicits._
 
+  if (cols.length == 1) {
+    throw new Exception("You need at least 2 columns to morton order your data.")
+  }
+
   private val columnTypes: Seq[(String, String)] = matchColumnWithType()
   private val nonString = columnTypes.filter(t => t._2 != "StringType")
   private val stringType = columnTypes.filter(t => t._2 == "StringType")

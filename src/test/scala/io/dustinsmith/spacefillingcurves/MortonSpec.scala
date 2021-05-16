@@ -148,4 +148,9 @@ class MortonSpec extends AnyWordSpec with Matchers with PrivateMethodTester with
       assert(resultChecksum == expectedChecksum)
     }
   }
+
+  "interleaveBits" should {
+
+    "interleave the binary bit columns" in {}
+  }
 }
