@@ -29,10 +29,7 @@ import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.types.{DecimalType, DoubleType, FloatType, IntegerType, LongType, ShortType}
 
 
-class BinarySpec extends AnyWordSpec
-  with Matchers
-  with PrivateMethodTester
-  with BeforeAndAfterAll {
+class BinarySpec extends AnyWordSpec with Matchers with PrivateMethodTester with BeforeAndAfterAll {
 
   val spark: SparkSession = SparkSession
     .builder()

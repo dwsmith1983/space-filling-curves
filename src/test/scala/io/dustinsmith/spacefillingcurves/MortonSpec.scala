@@ -15,6 +15,28 @@
  */
 package io.dustinsmith.spacefillingcurves
 
-class MortonSpec {
+import java.io.File
 
+import scala.reflect.io.Directory
+
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.PrivateMethodTester
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+
+import org.apache.spark.sql.SparkSession
+
+
+class MortonSpec extends AnyWordSpec with Matchers with PrivateMethodTester with BeforeAndAfterAll {
+
+  val spark: SparkSession = SparkSession
+    .builder()
+    .appName("MortonIndexTesting")
+    .master("local[2]")
+    .getOrCreate()
+
+  override def afterAll(): Unit = {
+    new Directory(new File("spark-warehouse")).deleteRecursively
+    super.afterAll()
+  }
 }
