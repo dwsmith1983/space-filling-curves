@@ -34,6 +34,10 @@ import org.apache.spark.sql.functions._
 class Morton(val df: DataFrame, val cols: Array[String]) extends LazyLogging with SparkSessionWrapper {
   import spark.implicits._
 
+  if (cols.length == 1) {
+    throw new Exception("You need at least 2 columns to morton order your data.")
+  }
+
   private val columnTypes: Seq[(String, String)] = matchColumnWithType()
   private val nonString = columnTypes.filter(t => t._2 != "StringType")
   private val stringType = columnTypes.filter(t => t._2 == "StringType")
@@ -132,7 +136,10 @@ class Morton(val df: DataFrame, val cols: Array[String]) extends LazyLogging wit
    */
   private def getNonStringBinaryDF: DataFrame = {
 
-    df
-      .select($"*" +: nonString.map(tup => getBinaryFunc(tup._2)(col(tup._1)).alias(tup._1 + "_binary")): _*)
+    if (nonString.nonEmpty) {
+      df
+        .select($"*" +: nonString.map(tup => getBinaryFunc(tup._2)(col(tup._1)).alias(tup._1 + "_binary")): _*)
+    }
+    else df
   }
 }

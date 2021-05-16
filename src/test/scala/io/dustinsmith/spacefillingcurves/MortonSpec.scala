@@ -15,6 +15,174 @@
  */
 package io.dustinsmith.spacefillingcurves
 
-class MortonSpec {
+import java.io.File
 
+import scala.reflect.io.Directory
+
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.PrivateMethodTester
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+
+import org.apache.spark.sql.{DataFrame, SparkSession}
+
+
+class MortonSpec extends AnyWordSpec with Matchers with PrivateMethodTester with BeforeAndAfterAll {
+
+  val spark: SparkSession = SparkSession
+    .builder()
+    .appName("MortonIndexTesting")
+    .master("local[2]")
+    .getOrCreate()
+
+  import spark.implicits._
+
+  override def afterAll(): Unit = {
+    new Directory(new File("spark-warehouse")).deleteRecursively
+    super.afterAll()
+  }
+
+  val df: DataFrame = Seq(
+    (1, 1, 12.23, "a", "m"),
+    (4, 9, 5.05, "b", "m"),
+    (3, 0, 1.23, "c", "f"),
+    (2, 2, 100.4, "d", "f"),
+    (1, 25, 3.25, "a", "m")
+  ).toDF("x", "y", "amnt", "id", "sex")
+  val mortonNum: Morton = new Morton(df, Array("x", "y"))
+  val mortonStr: Morton = new Morton(df, Array("id", "sex"))
+  val mortonMixed: Morton = new Morton(df, Array("x", "id", "amnt"))
+
+  "matchColumnWithType numeric columns" should {
+
+    "return a tuple with column and data type" in {
+      val privateMethod: PrivateMethod[Seq[(String, String)]] =
+        PrivateMethod[Seq[(String, String)]]('matchColumnWithType)
+      val resultArray: Seq[(String, String)] = mortonNum invokePrivate privateMethod()
+      val expectedArray: Seq[(String, String)] = Seq(("x", "IntegerType"), ("y", "IntegerType"))
+
+      assert(resultArray == expectedArray)
+    }
+  }
+
+  "matchColumnWithType mixed columns" should {
+
+    "return a tuple with column and data type" in {
+      val privateMethod: PrivateMethod[Seq[(String, String)]] =
+        PrivateMethod[Seq[(String, String)]]('matchColumnWithType)
+      val resultArray: Seq[(String, String)] = mortonMixed invokePrivate privateMethod()
+      val expectedArray: Seq[(String, String)] = Seq(("x", "IntegerType"), ("amnt", "DoubleType"), ("id", "StringType"))
+
+      assert(resultArray == expectedArray)
+    }
+  }
+
+  "getNonStringBinaryDF str columns" should {
+
+    "return the original dataframe" in {
+      val privateMethod: PrivateMethod[DataFrame] = PrivateMethod[DataFrame]('getNonStringBinaryDF)
+      val resultDF: DataFrame = mortonStr invokePrivate privateMethod()
+      val resultChecksum: Int = HashDataFrame.checksumDataFrame(resultDF, 1)
+      val expectedChecksum: Int = HashDataFrame.checksumDataFrame(df, 1)
+
+      assert(resultChecksum == expectedChecksum)
+    }
+  }
+
+  "getNonStringBinaryDF num columns" should {
+
+    "return the original dataframe with the binary columns for numeric" in {
+      val privateMethod: PrivateMethod[DataFrame] = PrivateMethod[DataFrame]('getNonStringBinaryDF)
+      val resultDF: DataFrame = mortonNum invokePrivate privateMethod()
+      val resultChecksum: Int = HashDataFrame.checksumDataFrame(resultDF, 1)
+      val expectedDF: DataFrame = spark.read
+        .format("parquet")
+        .load(getClass.getResource("/numeric_binary").getPath)
+      val expectedChecksum: Int = HashDataFrame.checksumDataFrame(expectedDF, 1)
+
+      assert(resultChecksum == expectedChecksum)
+    }
+  }
+
+  "getBinaryDF str columns" should {
+
+    "return the original dataframe with the binary columns for strings" in {
+      val privateMethod: PrivateMethod[DataFrame] = PrivateMethod[DataFrame]('getBinaryDF)
+      val resultDF: DataFrame = mortonStr invokePrivate privateMethod()
+      val resultChecksum: Int = HashDataFrame.checksumDataFrame(resultDF, 1)
+      val expectedDF: DataFrame = spark.read
+        .format("parquet")
+        .load(getClass.getResource("/str_binary").getPath)
+      val expectedChecksum: Int = HashDataFrame.checksumDataFrame(expectedDF, 1)
+
+      assert(resultChecksum == expectedChecksum)
+    }
+  }
+
+  "getBinaryDF num columns" should {
+
+    "return the original dataframe with the binary columns for numeric" in {
+      val privateMethod: PrivateMethod[DataFrame] = PrivateMethod[DataFrame]('getBinaryDF)
+      val resultDF: DataFrame = mortonNum invokePrivate privateMethod()
+      val resultChecksum: Int = HashDataFrame.checksumDataFrame(resultDF, 1)
+      val expectedDF: DataFrame = spark.read
+        .format("parquet")
+        .load(getClass.getResource("/numeric_binary").getPath)
+      val expectedChecksum: Int = HashDataFrame.checksumDataFrame(expectedDF, 1)
+
+      assert(resultChecksum == expectedChecksum)
+    }
+  }
+
+  "getBinaryDF mixed columns" should {
+
+    "return the original dataframe with the binary columns for numeric and string" in {
+      val privateMethod: PrivateMethod[DataFrame] = PrivateMethod[DataFrame]('getBinaryDF)
+      val resultDF: DataFrame = mortonMixed invokePrivate privateMethod()
+      val resultChecksum: Int = HashDataFrame.checksumDataFrame(resultDF, 1)
+      val expectedDF: DataFrame = spark.read
+        .format("parquet")
+        .load(getClass.getResource("/mixed_binary").getPath)
+      val expectedChecksum: Int = HashDataFrame.checksumDataFrame(expectedDF, 1)
+
+      assert(resultChecksum == expectedChecksum)
+    }
+  }
+
+  // TODO: Figure out testing private UDFS
+  "interleaveBits" ignore {
+
+    "interleave the binary bit columns" in {
+      val numDF: DataFrame = spark.read
+        .format("parquet")
+        .load(getClass.getResource("/numeric_binary").getPath)
+      val privateMethod: PrivateMethod[DataFrame] = PrivateMethod[DataFrame]('interleaveBits)
+    }
+  }
+
+  "Morton class" should {
+
+    "throw an exception ig supplied column array is not greater than 1" in {
+      val thrown: Exception = the [Exception] thrownBy new Morton(df, Array("x"))
+
+      thrown.getMessage should equal(
+        "You need at least 2 columns to morton order your data."
+      )
+    }
+  }
+
+  "mortonIndex" should {
+
+    "return a dataframe with the column z_index" in {
+      val privateMethod: PrivateMethod[DataFrame] = PrivateMethod[DataFrame]('mortonIndex)
+      val resultDF: DataFrame = mortonNum invokePrivate privateMethod()
+      val resultChecksum: Int = HashDataFrame.checksumDataFrame(resultDF, 1)
+      val expectedDF: DataFrame = spark.read
+        .format("parquet")
+        .load(getClass.getResource("/z_index").getPath)
+      val expectedChecksum: Int = HashDataFrame.checksumDataFrame(expectedDF, 1)
+
+      assert(resultChecksum == expectedChecksum)
+    }
+  }
 }
