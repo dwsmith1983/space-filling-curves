@@ -84,7 +84,22 @@ class MortonSpec extends AnyWordSpec with Matchers with PrivateMethodTester with
       val resultDF: DataFrame = mortonStr invokePrivate privateMethod()
       val resultChecksum: Int = HashDataFrame.checksumDataFrame(resultDF, 1)
       val expectedChecksum: Int = HashDataFrame.checksumDataFrame(df, 1)
-      
+
+      assert(resultChecksum == expectedChecksum)
+    }
+  }
+
+  "getNonStringBinaryDF num columns" should {
+
+    "return the original dataframe" in {
+      val privateMethod: PrivateMethod[DataFrame] = PrivateMethod[DataFrame]('getNonStringBinaryDF)
+      val resultDF: DataFrame = mortonNum invokePrivate privateMethod()
+      val resultChecksum: Int = HashDataFrame.checksumDataFrame(resultDF, 1)
+      val expectedDF: DataFrame = spark.read
+        .format("parquet")
+        .load(getClass.getResource("/numeric_binary").getPath)
+      val expectedChecksum: Int = HashDataFrame.checksumDataFrame(expectedDF, 1)
+
       assert(resultChecksum == expectedChecksum)
     }
   }
