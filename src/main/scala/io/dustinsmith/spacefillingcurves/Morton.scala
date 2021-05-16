@@ -132,7 +132,10 @@ class Morton(val df: DataFrame, val cols: Array[String]) extends LazyLogging wit
    */
   private def getNonStringBinaryDF: DataFrame = {
 
-    df
-      .select($"*" +: nonString.map(tup => getBinaryFunc(tup._2)(col(tup._1)).alias(tup._1 + "_binary")): _*)
+    if (nonString.nonEmpty) {
+      df
+        .select($"*" +: nonString.map(tup => getBinaryFunc(tup._2)(col(tup._1)).alias(tup._1 + "_binary")): _*)
+    }
+    else df
   }
 }
