@@ -43,13 +43,14 @@ class MortonSpec extends AnyWordSpec with Matchers with PrivateMethodTester with
   }
 
   val df: DataFrame = Seq(
-    (1, 1, 12.23, "a"),
-    (4, 9, 5.05, "b"),
-    (3, 0, 1.23, "c"),
-    (2, 2, 100.4, "d"),
-    (1, 25, 3.25, "a")
-  ).toDF("x", "y", "amnt", "id")
+    (1, 1, 12.23, "a", "m"),
+    (4, 9, 5.05, "b", "m"),
+    (3, 0, 1.23, "c", "f"),
+    (2, 2, 100.4, "d", "f"),
+    (1, 25, 3.25, "a", "m")
+  ).toDF("x", "y", "amnt", "id", "sex")
   val mortonNum: Morton = new Morton(df, Array("x", "y"))
+  val mortonStr: Morton = new Morton(df, Array("id", "sex"))
   val mortonMixed: Morton = new Morton(df, Array("x", "id", "amnt"))
 
   "matchColumnWithType numeric columns" should {
@@ -73,6 +74,18 @@ class MortonSpec extends AnyWordSpec with Matchers with PrivateMethodTester with
       val expectedArray: Seq[(String, String)] = Seq(("x", "IntegerType"), ("amnt", "DoubleType"), ("id", "StringType"))
 
       assert(resultArray == expectedArray)
+    }
+  }
+
+  "getNonStringBinaryDF str columns" should {
+
+    "return the original dataframe" in {
+      val privateMethod: PrivateMethod[DataFrame] = PrivateMethod[DataFrame]('getNonStringBinaryDF)
+      val resultDF: DataFrame = mortonStr invokePrivate privateMethod()
+      val resultChecksum: Int = HashDataFrame.checksumDataFrame(resultDF, 1)
+      val expectedChecksum: Int = HashDataFrame.checksumDataFrame(df, 1)
+      
+      assert(resultChecksum == expectedChecksum)
     }
   }
 }
