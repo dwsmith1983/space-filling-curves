@@ -149,8 +149,25 @@ class MortonSpec extends AnyWordSpec with Matchers with PrivateMethodTester with
     }
   }
 
-  "interleaveBits" should {
+  // TODO: Figure out testing private UDFS
+  "interleaveBits" ignore {
 
-    "interleave the binary bit columns" in {}
+    "interleave the binary bit columns" in {
+      val numDF: DataFrame = spark.read
+        .format("parquet")
+        .load(getClass.getResource("/numeric_binary").getPath)
+      val privateMethod: PrivateMethod[DataFrame] = PrivateMethod[DataFrame]('interleaveBits)
+    }
+  }
+
+  "Morton class" should {
+
+    "throw an exception ig supplied column array is not greater than 1" in {
+      val thrown: Exception = the [Exception] thrownBy new Morton(df, Array("x"))
+
+      thrown.getMessage should equal(
+        "You need at least 2 columns to morton order your data."
+      )
+    }
   }
 }
