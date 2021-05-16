@@ -22,4 +22,5 @@ jobs:
           java-version: '11'
 
       - name: Run tests
+      - uses: actions/checkout@v2
         run: sbt -mem 2048 test
