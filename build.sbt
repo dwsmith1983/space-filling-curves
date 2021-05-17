@@ -20,7 +20,7 @@ lazy val sparkVersion = "3.1.0"
 lazy val scalatestVersion = "3.2.3"
 
 // https://github.com/djspiewak/sbt-github-packages/issues/24
-githubTokenSource := TokenSource.GitConfig("github.token")  || TokenSource.Environment("GITHUB_TOKEN")
+// githubTokenSource := TokenSource.GitConfig("github.token")  || TokenSource.Environment("GITHUB_TOKEN")
 
 lazy val commonSettings = Seq(
   organization := "io.dustinsmith",
