@@ -9,8 +9,31 @@ process large chunks of data.
 3. [Z-order indexing for multifaceted queries in Amazon DynamoDB: Part 1](https://aws.amazon.com/blogs/database/z-order-indexing-for-multifaceted-queries-in-amazon-dynamodb-part-1/)
 4. [Z-order indexing for multifaceted queries in Amazon DynamoDB: Part 2](https://aws.amazon.com/blogs/database/z-order-indexing-for-multifaceted-queries-in-amazon-dynamodb-part-2/)
 
+# Usage
+Given the dataframe below, we want to Morton (Z Order) our data by `id`, `x`, `y`
+```scala
+// Currently, this isn't setup to use Maven. 
+// For now, publish local or just assembly and use the jar.
+val orderingCols: Array[String] = Array("id", "x", "y")
+val df: DataFrame = Seq(
+  (1, 1, 12.23, "a", "m"),
+  (4, 9, 5.05, "b", "m"),
+  (3, 0, 1.23, "c", "f"),
+  (2, 2, 100.4, "d", "f"),
+  (1, 25, 3.25, "a", "m")
+).toDF("x", "y", "amnt", "id", "sex")
+
+val mortonOrdering: Morton = new Morton(df, orderingCols)
+// this will order your whole dataframe by the z_index
+val zIndexedDF: DataFrame = mortonOrdering
+  .getBinary.sort("z_index")
+```
+
 # Work in Progress
 * Currently, built against Spark 3.1.0 and Scala 2.12.13
 * Need to create crosscompiled version on Spark 2.x and Scala 2.11/2.12
 * Finish README
-* Finish tests
+
+# Help Needed
+Looking for help with those experienced with creating decent READMEs
+and publishing code to Maven.

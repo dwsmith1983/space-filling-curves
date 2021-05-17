@@ -24,9 +24,8 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import scala.reflect.io.Directory
 
-import org.apache.spark.sql.{Column, DataFrame, SparkSession}
+import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.expressions.UserDefinedFunction
-import org.apache.spark.sql.types.{DecimalType, DoubleType, FloatType, IntegerType, LongType, ShortType}
 
 
 class BinarySpec extends AnyWordSpec with Matchers with PrivateMethodTester with BeforeAndAfterAll {
@@ -36,6 +35,16 @@ class BinarySpec extends AnyWordSpec with Matchers with PrivateMethodTester with
     .appName("BinaryMethodTesting")
     .master("local[2]")
     .getOrCreate()
+
+  /**
+   * The proxy methods test the functionality of the UDFs in Binary. I cannot think of away to test
+   * the UDFS in a dataframe.
+   * If anyone knows how test like this should be done, let me know.
+   */
+  def proxyIntToBinary(i: Long): String = i.toBinaryString
+
+  def proxyDoubleToBinary(i: Double): String = java.lang.Long.toBinaryString(
+    java.lang.Double.doubleToRawLongBits(i))
 
   override def afterAll(): Unit = {
     new Directory(new File("spark-warehouse")).deleteRecursively
@@ -56,77 +65,41 @@ class BinarySpec extends AnyWordSpec with Matchers with PrivateMethodTester with
     }
   }
 
-  // TODO: Figure out how to unit test private UDFS
-  //  need this capability for integer and double testing
-  "intToBinary integer" ignore {
+  // Using proxy methods to test the UDF column results
+  "intToBinary integer" should {
 
     "convert integer values to binary string" in {
-      import spark.implicits._
+      val binaryRes: String = proxyIntToBinary(500)
 
-      val df: DataFrame = Seq(1, 2, 3, 4).toDF("x")
-        .withColumn("x", $"x".cast(IntegerType))
-      val privateMethod: PrivateMethod[Column] = PrivateMethod[Column]('intToBinary)
-      val resultArray: Array[(Int, String)] = df
-        .withColumn("x_binary", Binary invokePrivate privateMethod($"x"))
-        .sort("x")
-        .collect
-        .map(r => (r(0).toString.toInt, r(1).toString))
-      val expectedArray: Array[(Int, String)] = Array(
-        (1, "1"),
-        (2, "10"),
-        (3, "11"),
-        (4, "100")
-      )
-
-      assert(resultArray sameElements expectedArray)
+      assert(binaryRes == "111110100")
     }
   }
 
-  "intToBinary long" ignore {
+  "intToBinary long" should {
 
     "convert long values to binary string" in {
-      import spark.implicits._
+      val binaryRes: String = proxyIntToBinary(200000000000L)
 
-      val df: DataFrame = Seq(1, 2, 3, 4).toDF("x")
-        .withColumn("x", $"x".cast(LongType))
-      val privateMethod: PrivateMethod[Column] = PrivateMethod[Column]('intToBinary)
-      val resultArray: Array[(Int, String)] = df
-        .withColumn("x_binary", Binary invokePrivate privateMethod($"x"))
-        .sort("x")
-        .collect
-        .map(r => (r(0).toString.toInt, r(1).toString))
-      val expectedArray: Array[(Int, String)] = Array(
-        (1, "1"),
-        (2, "10"),
-        (3, "11"),
-        (4, "100")
-      )
-
-      assert(resultArray sameElements expectedArray)
+      assert(binaryRes == "10111010010000111011011101000000000000")
     }
   }
 
-  "intToBinary short" ignore {
+  "intToBinary short" should {
 
     "convert short values to binary string" in {
-      import spark.implicits._
+      val binaryRes: String = proxyIntToBinary(8.toShort)
 
-      val df: DataFrame = Seq(1, 2, 3, 4).toDF("x")
-        .withColumn("x", $"x".cast(ShortType))
-      val privateMethod: PrivateMethod[Column] = PrivateMethod[Column]('intToBinary)
-      val resultArray: Array[(Int, String)] = df
-        .withColumn("x_binary", Binary invokePrivate privateMethod($"x"))
-        .sort("x")
-        .collect
-        .map(r => (r(0).toString.toInt, r(1).toString))
-      val expectedArray: Array[(Int, String)] = Array(
-        (1, "1"),
-        (2, "10"),
-        (3, "11"),
-        (4, "100")
-      )
+      assert(binaryRes == "1000")
+    }
+  }
 
-      assert(resultArray sameElements expectedArray)
+  "doubleToBinary double, float, dcial" should {
+
+    "convert integer values to binary string" in {
+      // in Spark, they should cast the same in the dataframe; will tested later
+      val binaryRes: String = proxyDoubleToBinary(1.5)
+
+      assert(binaryRes == "11111111111000000000000000000000000000000000000000000000000000")
     }
   }
 

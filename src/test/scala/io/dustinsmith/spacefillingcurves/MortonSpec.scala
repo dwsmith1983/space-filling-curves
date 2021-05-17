@@ -53,6 +53,19 @@ class MortonSpec extends AnyWordSpec with Matchers with PrivateMethodTester with
   val mortonStr: Morton = new Morton(df, Array("id", "sex"))
   val mortonMixed: Morton = new Morton(df, Array("x", "id", "amnt"))
 
+  /**
+   * The proxy methods test the functionality of the UDFs in Binary. I cannot think of away to test
+   * the UDFS in a dataframe.
+   * If anyone knows how test like this should be done, let me know.
+   */
+  def proxyInterleaveBits(dataArray: Array[String]): String = {
+
+    val bits: Array[Int] = (0 until 5).toArray
+
+    bits
+      .map(c => dataArray.map(bin => bin(c).toString).mkString(""))
+      .reduceLeft((x, y) => x + y)}
+
   "matchColumnWithType numeric columns" should {
 
     "return a tuple with column and data type" in {
@@ -150,13 +163,13 @@ class MortonSpec extends AnyWordSpec with Matchers with PrivateMethodTester with
   }
 
   // TODO: Figure out testing private UDFS
-  "interleaveBits" ignore {
+  "interleaveBits" should {
 
     "interleave the binary bit columns" in {
-      val numDF: DataFrame = spark.read
-        .format("parquet")
-        .load(getClass.getResource("/numeric_binary").getPath)
-      val privateMethod: PrivateMethod[DataFrame] = PrivateMethod[DataFrame]('interleaveBits)
+      val binaryArray: Array[String] = Array("11010", "01001")
+      val resultInterleaved: String = proxyInterleaveBits(binaryArray)
+
+      assert(resultInterleaved == "1011001001")
     }
   }
 
