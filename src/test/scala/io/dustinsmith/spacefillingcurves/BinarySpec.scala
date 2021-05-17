@@ -36,6 +36,11 @@ class BinarySpec extends AnyWordSpec with Matchers with PrivateMethodTester with
     .master("local[2]")
     .getOrCreate()
 
+  /**
+   * The proxy methods test the functionality of the UDFs in Binary. I cannot think of away to test
+   * the UDFS in a dataframe.
+   * If anyone knows how test like this should be done, let me know.
+   */
   def proxyIntToBinary(i: Long): String = i.toBinaryString
 
   def proxyDoubleToBinary(i: Double): String = java.lang.Long.toBinaryString(
