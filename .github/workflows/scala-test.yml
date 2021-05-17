@@ -1,8 +1,9 @@
-name: Space Filling Curve CI
+name: Space Filling Curve CI Test
 
 on:
   push:
     branches:
+      - dev/*
       - main
       - release/*
   pull_request:
@@ -22,6 +23,8 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
       - name: Run tests
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_READ_WRITE }}
         run: |
           sbt compile
           sbt test
