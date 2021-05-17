@@ -1,4 +1,4 @@
-name: Space Filling Curve CI Test
+name: Space Filling Curve CI
 
 on:
   push:
