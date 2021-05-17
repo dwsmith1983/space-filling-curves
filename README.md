@@ -1,4 +1,4 @@
-[![Space Filling Curve CI](https://github.com/dwsmith1983/space-filling-curves/actions/workflows/scala-test.yml/badge.svg?branch=main&event=pull_request)](https://github.com/dwsmith1983/space-filling-curves/actions/workflows/scala-test.yml)
+[![Space Filling Curve CI Test](https://github.com/dwsmith1983/space-filling-curves/actions/workflows/scala-test.yml/badge.svg?branch=main)](https://github.com/dwsmith1983/space-filling-curves/actions/workflows/scala-test.yml)
 # Space Filling Curves
 Space filling curves allow us to represent an n-dimensional curve
 in one dimensional while preserving locality. Techniques such as
