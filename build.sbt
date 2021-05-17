@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  *
  */
-val projectName = "dustinsmith-space-filling-curves"
+val projectName = "space-filling-curves"
 val projectVersion = "0.1.0"
 
 lazy val sparkVersion = "3.1.0"
