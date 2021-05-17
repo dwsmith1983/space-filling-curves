@@ -3,10 +3,12 @@ name: Space Filling Curve CI Test
 on:
   push:
     branches:
-      - dev/github-actions
-  # pull_request:
-  #   branches:
-  #     - main
+      - dev/*
+      - main
+      - release/*
+  pull_request:
+    branches:
+      - main
 
 jobs:
   test:
