@@ -3,4 +3,3 @@
 -J-XX:MaxMetaspaceSize=512m
 -J-XX:+CMSClassUnloadingEnabled
 -J-XX:ReservedCodeCacheSize=256m
--J-XX:MaxPermSize=4G
