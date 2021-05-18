@@ -3,7 +3,7 @@ name: Release CI
 on:
   push:
     branches:
-      - release/*
+      - branch2.4
 
 jobs:
   build:

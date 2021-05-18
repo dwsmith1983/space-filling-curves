@@ -14,7 +14,7 @@
  *
  */
 val projectName = "space-filling-curves"
-val projectVersion = "0.1.0-spark2.47"
+val projectVersion = "0.1.0-spark2.4.7"
 
 lazy val sparkVersion = "2.4.7"
 lazy val scalatestVersion = "3.2.3"
