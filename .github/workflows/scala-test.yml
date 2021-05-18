@@ -21,5 +21,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_READ_WRITE }}
         run: |
-          sbt compile
-          sbt test
+          sbt ++compile
+          sbt ++test
