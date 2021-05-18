@@ -14,9 +14,9 @@
  *
  */
 val projectName = "space-filling-curves"
-val projectVersion = "0.1.0"
+val projectVersion = "0.1.0-spark2.47"
 
-lazy val sparkVersion = "3.1.0"
+lazy val sparkVersion = "2.4.7"
 lazy val scalatestVersion = "3.2.3"
 
 // https://github.com/djspiewak/sbt-github-packages/issues/24
@@ -24,7 +24,7 @@ githubTokenSource := TokenSource.GitConfig("github.token")  || TokenSource.Envir
 
 lazy val commonSettings = Seq(
   organization := "io.dustinsmith",
-  scalaVersion := "2.12.13",
+  crossScalaVersions := Seq("2.11.12", "2.12.13"),
   version := projectVersion
 )
 
