@@ -55,3 +55,6 @@ lazy val root = (project in file("."))
 resolvers += Resolver.githubPackages("dwsmith1983", projectName)
 githubOwner := "dwsmith1983"
 githubRepository := projectName
+publishMavenStyle := true
+
+publishTo := githubPublishTo.value
