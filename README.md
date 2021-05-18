@@ -9,6 +9,13 @@ process large chunks of data.
 3. [Z-order indexing for multifaceted queries in Amazon DynamoDB: Part 1](https://aws.amazon.com/blogs/database/z-order-indexing-for-multifaceted-queries-in-amazon-dynamodb-part-1/)
 4. [Z-order indexing for multifaceted queries in Amazon DynamoDB: Part 2](https://aws.amazon.com/blogs/database/z-order-indexing-for-multifaceted-queries-in-amazon-dynamodb-part-2/)
 
+# Available GitHub Packages
+```
+Spark-2.3.1 on Scala 2.11.12 
+Spark-2.4.7 on Scala 2.11.12 and Scala 2.12.13
+Spark-3.1.0 on Scala 2.12.13 Java 11
+```
+
 # Usage
 Given the dataframe below, we want to Morton (Z Order) our data by `id`, `x`, `y`
 ```scala
