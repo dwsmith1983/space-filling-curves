@@ -52,7 +52,7 @@ lazy val root = (project in file("."))
     }
   )
 
-resolvers += Resolver.githubPackages("dwsmith1983", projectName)
+resolvers += Resolver.githubPackages("dwsmith1983")
 githubOwner := "dwsmith1983"
 githubRepository := projectName
 publishMavenStyle := true
