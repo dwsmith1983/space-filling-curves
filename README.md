@@ -30,9 +30,9 @@ val zIndexedDF: DataFrame = mortonOrdering
 ```
 
 # Work in Progress
-* Currently, built against Spark 3.1.0 and Scala 2.12.13
-* Need to create crosscompiled version on Spark 2.x and Scala 2.11/2.12
-* Finish README
+* README
+* Better organization
+* Add other space filling curves: Hilbert, GeoHash, Peano
 
 # Help Needed
 Looking for help with those experienced with creating decent READMEs
