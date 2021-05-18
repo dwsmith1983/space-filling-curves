@@ -26,7 +26,7 @@ val df: DataFrame = Seq(
 val mortonOrdering: Morton = new Morton(df, orderingCols)
 // this will order your whole dataframe by the z_index
 val zIndexedDF: DataFrame = mortonOrdering
-  .getBinary.sort("z_index")
+  .mortonIndex.sort("z_index")
 ```
 
 # Work in Progress
