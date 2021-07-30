@@ -13,11 +13,8 @@
  * permissions and limitations under the License.
  *
  */
-package io.dustinsmith.spacefillingcurves
+package io.dustinsmith.bitinterleave
 
-import org.apache.spark.sql.DataFrame
-
-
-class Hilbert(val df: DataFrame, val cols: Array[String]) extends SparkSessionWrapper {
+class InterleaveBitsSpec {
 
 }
