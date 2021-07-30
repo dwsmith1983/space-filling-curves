@@ -15,8 +15,8 @@
  */
 package io.dustinsmith.bitinterleave
 
-import io.dustinsmith.spacefillingcurves.Binary._
-import io.dustinsmith.spacefillingcurves.SparkSessionWrapper
+import Binary._
+import io.dustinsmith.SparkSessionWrapper
 import scalaz.Scalaz._
 
 import org.apache.spark.sql.{DataFrame, Row}

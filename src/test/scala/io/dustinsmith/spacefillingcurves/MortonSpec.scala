@@ -15,6 +15,8 @@
  */
 package io.dustinsmith.spacefillingcurves
 
+import io.dustinsmith.HashDataFrame
+
 import java.io.File
 
 import scala.reflect.io.Directory

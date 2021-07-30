@@ -15,9 +15,15 @@
  */
 package io.dustinsmith.spacefillingcurves
 
+import io.dustinsmith.SparkSessionWrapper
+import io.dustinsmith.bitinterleave.InterleaveBits
+
 import org.apache.spark.sql.DataFrame
 
 
 class Hilbert(val df: DataFrame, val cols: Array[String]) extends SparkSessionWrapper {
 
+  import spark.implicits._
+
+  private val interleaved: InterleaveBits = new InterleaveBits(df, cols)
 }

@@ -13,16 +13,17 @@
  * permissions and limitations under the License.
  *
  */
-package io.dustinsmith.spacefillingcurves
-
-import scala.util.hashing.MurmurHash3
+package io.dustinsmith
 
 import org.apache.spark.sql.functions.{col, hash}
+
+import scala.util.hashing.MurmurHash3
 
 /**
  * Helper object to compare dataframes without using Holdenkarau (has some problems with Spark 3)
  */
 object HashDataFrame extends SparkSessionWrapper {
+
   import spark.implicits._
 
   /**

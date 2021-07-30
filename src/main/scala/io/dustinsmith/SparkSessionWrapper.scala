@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  *
  */
-package io.dustinsmith.spacefillingcurves
+package io.dustinsmith
 
 import org.apache.spark.sql.SparkSession
 

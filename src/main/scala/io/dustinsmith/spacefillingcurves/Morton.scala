@@ -15,6 +15,7 @@
  */
 package io.dustinsmith.spacefillingcurves
 
+import io.dustinsmith.SparkSessionWrapper
 import io.dustinsmith.bitinterleave.InterleaveBits
 
 import org.apache.spark.sql.DataFrame
