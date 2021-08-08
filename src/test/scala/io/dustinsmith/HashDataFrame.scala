@@ -15,9 +15,10 @@
  */
 package io.dustinsmith
 
+import scala.util.hashing.MurmurHash3
+
 import org.apache.spark.sql.functions.{col, hash}
 
-import scala.util.hashing.MurmurHash3
 
 /**
  * Helper object to compare dataframes without using Holdenkarau (has some problems with Spark 3)
