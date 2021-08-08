@@ -28,6 +28,11 @@ class Hilbert(val df: DataFrame, val cols: Array[String]) extends SparkSessionWr
 
   private val interleavedDF: DataFrame = new Morton(df, cols).mortonIndex()
 
+  /**
+   * Gray codes an integer value in binary and returns its new integer.
+   *
+   * @return Integer after bit hacking
+   */
   private def grayCode: UserDefinedFunction = udf {
     (colBinary: String) =>
 
@@ -35,6 +40,11 @@ class Hilbert(val df: DataFrame, val cols: Array[String]) extends SparkSessionWr
       colInt ^ colInt >> 1
   }
 
+  /**
+   * Determines the Hilbert index from the z-index of Morton ordering.
+   *
+   * @return Dataframe with new hilbert_index column.
+   */
   def hilbertIndex(): DataFrame = {
 
     interleavedDF.withColumn("hilbert_index", grayCode($"z_index"))
