@@ -16,14 +16,28 @@
 package io.dustinsmith.spacefillingcurves
 
 import io.dustinsmith.SparkSessionWrapper
-import io.dustinsmith.bitinterleave.InterleaveBits
 
 import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.expressions.UserDefinedFunction
+import org.apache.spark.sql.functions.udf
 
 
 class Hilbert(val df: DataFrame, val cols: Array[String]) extends SparkSessionWrapper {
 
   import spark.implicits._
 
-  private val interleaved: InterleaveBits = new InterleaveBits(df, cols)
+  private val interleavedDF: DataFrame = new Morton(df, cols).mortonIndex()
+
+  private def grayCode: UserDefinedFunction = udf {
+    (colBinary: String) =>
+
+      val colInt: Integer = Integer.parseInt(colBinary, 2)
+      colInt ^ colInt >> 1
+  }
+
+  def hilbertIndex(): DataFrame = {
+
+    interleavedDF.withColumn("hilbert_index", grayCode($"z_index"))
+      .drop("z_index")
+  }
 }
