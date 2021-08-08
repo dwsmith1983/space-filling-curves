@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  *
  */
-package io.dustinsmith.spacefillingcurves
+package io.dustinsmith.bitinterleave
 
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.udf
@@ -39,6 +39,7 @@ object Binary {
    * UDFs for converting Short, Int, Long and Float, Double, Decimal to binary string.
    */
   private def intToBinary: UserDefinedFunction = udf((c: Long) => toBinaryFormat(c.toBinaryString))
+
   private def doubleToBinary: UserDefinedFunction = udf((c: Double) => toBinaryFormat(java.lang.Long.toBinaryString(
     java.lang.Double.doubleToRawLongBits(c)))
   )

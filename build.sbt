@@ -14,9 +14,9 @@
  *
  */
 val projectName = "space-filling-curves"
-val projectVersion = "0.1.0"
+val projectVersion = "0.2.0"
 
-lazy val sparkVersion = "3.1.0"
+lazy val sparkVersion = "3.1.1"
 lazy val scalatestVersion = "3.2.3"
 
 // https://github.com/djspiewak/sbt-github-packages/issues/24

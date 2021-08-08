@@ -15,12 +15,10 @@
  */
 package io.dustinsmith.spacefillingcurves
 
-import Binary.getBinaryFunc
-import com.typesafe.scalalogging.LazyLogging
-import scalaz.Scalaz._
+import io.dustinsmith.SparkSessionWrapper
+import io.dustinsmith.bitinterleave.InterleaveBits
 
-import org.apache.spark.sql.{DataFrame, Row}
-import org.apache.spark.sql.expressions.{UserDefinedFunction, Window}
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
 
 
@@ -31,48 +29,11 @@ import org.apache.spark.sql.functions._
  * @param df   Dataframe we wish to apply a Morton or Z index to.
  * @param cols The columns to order by in descending order or precedence.
  */
-class Morton(val df: DataFrame, val cols: Array[String]) extends LazyLogging with SparkSessionWrapper {
+class Morton(val df: DataFrame, val cols: Array[String]) extends SparkSessionWrapper {
+
   import spark.implicits._
 
-  if (cols.length == 1) {
-    throw new Exception("You need at least 2 columns to morton order your data.")
-  }
-
-  private val columnTypes: Seq[(String, String)] = matchColumnWithType()
-  private val nonString = columnTypes.filter(t => t._2 != "StringType")
-  private val stringType = columnTypes.filter(t => t._2 == "StringType")
-
-  /**
-   * UDF to interleave binary bits for the desired columns.
-   */
-  private def interleaveBits: UserDefinedFunction = udf {
-    (colStruct: Row) =>
-
-      // first item in struct is the number of z-ordering columns
-      val numCols: Int = colStruct.getAs[Int](0)
-      val dataArray: Array[String] = (1 to numCols).toArray.map(i => colStruct.getAs[String](i))
-      val bits: Array[Int] = (0 until 64).toArray
-
-      bits
-        .map(c => dataArray.map(bin => bin(c).toString).mkString(""))
-        .reduceLeft((x, y) => x + y)
-  }
-
-  /**
-   * Matches the column name with the data type.
-   *
-   * @return A sequence of 2 tuples (col_name, col_data_type).
-   */
-  private def matchColumnWithType(): Seq[(String, String)] = {
-
-    df.schema
-      .map(
-        structField =>
-          if (cols.contains(structField.name)) (structField.name, structField.dataType.toString)
-          else null
-      )
-      .filter(_ != null)
-  }
+  private val interleaved: InterleaveBits = new InterleaveBits(df, cols)
 
   /**
    * Creates the z-index column in the dataframe.
@@ -81,65 +42,12 @@ class Morton(val df: DataFrame, val cols: Array[String]) extends LazyLogging wit
    */
   def mortonIndex(): DataFrame = {
 
-    val toIndex: DataFrame = getBinaryDF
+    val toIndex: DataFrame = interleaved.getBinaryDF
       .withColumn("size", lit(cols.length))
       .withColumn("struct_bits",
         struct(Seq(col("size")) ++ cols.map(c => col(c + "_binary")): _*))
       .drop(Seq("size") ++ cols.map(c => c + "_binary"): _*)
 
-    toIndex.withColumn("z_index", interleaveBits($"struct_bits")).drop("struct_bits")
-  }
-
-  /**
-   * Appends a binary column proxy value for string columns with the
-   * previously determined binary value for numerical columns.
-   *
-   * @return Dataframe with binary values for the columns to z-index.
-   */
-  private def getBinaryDF: DataFrame = {
-
-    val dfNonStringBinary: DataFrame = getNonStringBinaryDF
-
-    if (stringType.nonEmpty) {
-      // mapping unique string to integer; not a fan of this approach
-      // TODO: find another approach to assign strings to a proxy integer in order
-      //  to easily convert to binary
-      val stringMappings = stringType.map(
-        t =>
-          (
-            t._1,
-            "IntegerType",
-            df
-              .select(t._1)
-              .distinct
-              .withColumn("rn", row_number().over(Window.orderBy(monotonically_increasing_id())))
-              .collect
-              .map(r => Map(r(0).toString -> r(1).toString.toInt))
-              .reduceLeft(_ |+| _)
-          )
-      )
-        .map(t => (t._1, t._2, udf((c: String) => t._3(c))))
-
-      dfNonStringBinary
-        .select($"*" +: stringMappings.map(tup => tup._3(col(tup._1)).alias(tup._1 + "_bits")): _*)
-        .select($"*" +: stringMappings.map(tup => getBinaryFunc(tup._2)(col(tup._1 + "_bits"))
-          .alias(tup._1 + "_binary")): _*)
-        .drop(stringMappings.map(t => t._1 + "_bits"): _*)
-    }
-    else dfNonStringBinary
-  }
-
-  /**
-   * Return the dataframe with binary columns for the numerical datatypes.
-   *
-   * @return Dataframe binary values for the numerical columns to z-index.
-   */
-  private def getNonStringBinaryDF: DataFrame = {
-
-    if (nonString.nonEmpty) {
-      df
-        .select($"*" +: nonString.map(tup => getBinaryFunc(tup._2)(col(tup._1)).alias(tup._1 + "_binary")): _*)
-    }
-    else df
+    toIndex.withColumn("z_index", interleaved.interleaveBits($"struct_bits")).drop("struct_bits")
   }
 }
