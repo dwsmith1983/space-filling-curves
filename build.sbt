@@ -20,7 +20,8 @@ lazy val sparkVersion = "3.1.1"
 lazy val scalatestVersion = "3.2.3"
 
 // https://github.com/djspiewak/sbt-github-packages/issues/24
-githubTokenSource := TokenSource.GitConfig("github.token")  || TokenSource.Environment("GITHUB_TOKEN")
+githubTokenSource := TokenSource.GitConfig("github.token") || TokenSource
+  .Environment("GITHUB_TOKEN")
 
 lazy val commonSettings = Seq(
   organization := "io.dustinsmith",
@@ -32,17 +33,20 @@ lazy val root = (project in file("."))
   .settings(
     commonSettings,
     name := projectName,
+    Test / testOptions += Tests.Argument(
+      TestFrameworks.ScalaTest,
+      "-oD"
+    ), // show execution time of the tests
+    Test / fork := true,
     libraryDependencies ++= {
       List(
         "org.apache.spark" %% "spark-core" % sparkVersion % Provided,
         "org.apache.spark" %% "spark-sql" % sparkVersion % Provided,
         "org.scalaz" %% "scalaz-core" % "7.3.3",
-
         // Logging
         "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
         "ch.qos.logback" % "logback-classic" % "1.2.3",
         "org.slf4j" % "log4j-over-slf4j" % "1.7.26",
-
         // For unit testing
         "org.scalatest" %% "scalatest" % scalatestVersion % Test,
         "org.scalatest" %% "scalatest-shouldmatchers" % scalatestVersion % Test,

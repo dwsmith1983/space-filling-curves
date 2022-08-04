@@ -15,31 +15,27 @@
  */
 package io.dustinsmith.spacefillingcurves
 
-import io.dustinsmith.HashDataFrame
-import java.io.File
+import io.dustinsmith.{HashDataFrame, SparkSessionTestWrapper}
+import org.apache.spark.sql.DataFrame
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+
+import java.io.File
 import scala.reflect.io.Directory
 
-import org.apache.spark.sql.{DataFrame, SparkSession}
-
-
-class HilbertSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll {
-
-  val spark: SparkSession = SparkSession
-    .builder()
-    .appName("HilbertIndexTesting")
-    .master("local[2]")
-    .getOrCreate()
-
-  import spark.implicits._
+class HilbertSpec
+    extends AnyWordSpec
+    with Matchers
+    with BeforeAndAfterAll
+    with SparkSessionTestWrapper {
 
   override def afterAll(): Unit = {
     new Directory(new File("spark-warehouse")).deleteRecursively
     super.afterAll()
   }
 
+  import spark.implicits._
   val testArr: Array[Int] = (0 to 15 by 1).toArray[Int]
   val df: DataFrame = Seq(
     (0, 0),
@@ -69,7 +65,8 @@ class HilbertSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll {
 
     "take an array of ints and return their new int order for each one" in {
       val resultArr: Array[Int] = proxyGrayCode(testArr)
-      val expectedArr: Array[Int] = Array(0, 1, 3, 2, 6, 7, 5, 4, 12, 13, 15, 14, 10, 11, 9, 8)
+      val expectedArr: Array[Int] =
+        Array(0, 1, 3, 2, 6, 7, 5, 4, 12, 13, 15, 14, 10, 11, 9, 8)
 
       assert(resultArr sameElements expectedArr)
     }
@@ -78,7 +75,8 @@ class HilbertSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll {
   "hilbertIndex" should {
 
     "convert a z-index to the hilbert-index" in {
-      val resultDF: DataFrame = new Hilbert(df, Array("x", "y")).hilbertIndex().sort("hilbert_index")
+      val resultDF: DataFrame =
+        new Hilbert(df, Array("x", "y")).hilbertIndex().sort("hilbert_index")
       val resultChecksum: Int = HashDataFrame.checksumDataFrame(resultDF, 1)
       val expectedDF: DataFrame = Seq(
         (0, 0, 0),

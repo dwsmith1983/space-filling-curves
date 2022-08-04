@@ -42,7 +42,7 @@ project/project
 
 # other
 spark-warehouse/
-
+output.log
 # re sync gitignore
 # https://stackoverflow.com/questions/7075923/resync-git-repo-with-new-gitignore-file
 # git rm --cached `git ls-files -i --exclude-standard`

@@ -15,23 +15,20 @@
  */
 package io.dustinsmith.spacefillingcurves
 
-import io.dustinsmith.HashDataFrame
-import java.io.File
+import io.dustinsmith.{HashDataFrame, SparkSessionTestWrapper}
+import org.apache.spark.sql.DataFrame
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+
+import java.io.File
 import scala.reflect.io.Directory
 
-import org.apache.spark.sql.{DataFrame, SparkSession}
-
-
-class MortonSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll {
-
-  val spark: SparkSession = SparkSession
-    .builder()
-    .appName("MortonIndexTesting")
-    .master("local[2]")
-    .getOrCreate()
+class MortonSpec
+    extends AnyWordSpec
+    with Matchers
+    with BeforeAndAfterAll
+    with SparkSessionTestWrapper {
 
   import spark.implicits._
 
@@ -51,7 +48,7 @@ class MortonSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll {
   "Morton class" should {
 
     "throw an exception ig supplied column array is not greater than 1" in {
-      val thrown: Exception = the [Exception] thrownBy new Morton(df, Array("x"))
+      val thrown: Exception = the[Exception] thrownBy new Morton(df, Array("x"))
 
       thrown.getMessage should equal(
         "You need at least 2 columns to morton order your data."
