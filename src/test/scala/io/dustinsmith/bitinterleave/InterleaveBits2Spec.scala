@@ -16,16 +16,15 @@
 package io.dustinsmith.bitinterleave
 
 import io.dustinsmith.{HashDataFrame, SparkSessionTestWrapper}
+import org.apache.spark.sql.DataFrame
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.{BeforeAndAfterAll, PrivateMethodTester}
+
 import java.io.File
 import scala.reflect.io.Directory
 
-import org.scalatest.{BeforeAndAfterAll, PrivateMethodTester}
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
-
-import org.apache.spark.sql.DataFrame
-
-class InterleaveBitsSpec
+class InterleaveBits2Spec
     extends AnyWordSpec
     with Matchers
     with PrivateMethodTester
@@ -51,53 +50,13 @@ class InterleaveBitsSpec
     super.afterAll()
   }
 
-  "matchColumnWithType numeric columns" should {
-
-    "return a tuple with column and data type" in {
-      val privateMethod: PrivateMethod[Seq[(String, String)]] =
-        PrivateMethod[Seq[(String, String)]]('matchColumnWithType)
-      val resultArray: Seq[(String, String)] =
-        interleaveNum invokePrivate privateMethod()
-      val expectedArray: Seq[(String, String)] =
-        Seq(("x", "IntegerType"), ("y", "IntegerType"))
-
-      assert(resultArray == expectedArray)
-    }
-  }
-
-  "matchColumnWithType mixed columns" should {
-
-    "return a tuple with column and data type" in {
-      val privateMethod: PrivateMethod[Seq[(String, String)]] =
-        PrivateMethod[Seq[(String, String)]]('matchColumnWithType)
-      val resultArray: Seq[(String, String)] =
-        interleaveMixed invokePrivate privateMethod()
-      val expectedArray: Seq[(String, String)] =
-        Seq(("x", "IntegerType"), ("amnt", "DoubleType"), ("id", "StringType"))
-
-      assert(resultArray == expectedArray)
-    }
-  }
-
-  "getNonStringBinaryDF str columns" should {
-
-    "return the original dataframe" in {
-      val privateMethod: PrivateMethod[DataFrame] =
-        PrivateMethod[DataFrame]('getNonStringBinaryDF)
-      val resultDF: DataFrame = interleaveStr invokePrivate privateMethod()
-      val resultChecksum: Int = HashDataFrame.checksumDataFrame(resultDF, 1)
-      val expectedChecksum: Int = HashDataFrame.checksumDataFrame(df, 1)
-
-      assert(resultChecksum == expectedChecksum)
-    }
-  }
-
   "getNonStringBinaryDF num columns" should {
 
     "return the original dataframe with the binary columns for numeric" in {
       val privateMethod: PrivateMethod[DataFrame] =
         PrivateMethod[DataFrame]('getNonStringBinaryDF)
       val resultDF: DataFrame = interleaveNum invokePrivate privateMethod()
+      resultDF.show
       val resultChecksum: Int = HashDataFrame.checksumDataFrame(resultDF, 1)
       val expectedDF: DataFrame = spark.read
         .format("parquet")
@@ -140,19 +99,4 @@ class InterleaveBitsSpec
     }
   }
 
-  "getBinaryDF mixed columns" should {
-
-    "return the original dataframe with the binary columns for numeric and string" in {
-      val privateMethod: PrivateMethod[DataFrame] =
-        PrivateMethod[DataFrame]('getBinaryDF)
-      val resultDF: DataFrame = interleaveMixed invokePrivate privateMethod()
-      val resultChecksum: Int = HashDataFrame.checksumDataFrame(resultDF, 1)
-      val expectedDF: DataFrame = spark.read
-        .format("parquet")
-        .load(getClass.getResource("/mixed_binary").getPath)
-      val expectedChecksum: Int = HashDataFrame.checksumDataFrame(expectedDF, 1)
-
-      assert(resultChecksum == expectedChecksum)
-    }
-  }
 }

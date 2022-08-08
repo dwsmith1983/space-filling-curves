@@ -13,7 +13,8 @@
  * permissions and limitations under the License.
  *
  */
-package io.dustinsmith
+
+package io.dustinsmith.spark
 
 import org.apache.spark.sql.SparkSession
 

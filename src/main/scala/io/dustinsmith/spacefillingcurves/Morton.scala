@@ -15,39 +15,40 @@
  */
 package io.dustinsmith.spacefillingcurves
 
-import io.dustinsmith.SparkSessionWrapper
 import io.dustinsmith.bitinterleave.InterleaveBits
-
+import io.dustinsmith.spark.{SparkSessionWrapper, Udfs}
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
 
-
-/**
- * Morton Ordering (Z ordering) is a method to map a multidimensional index down to
- * 1D. We do this be determine the z-index which we can sort by.
- *
- * @param df   Dataframe we wish to apply a Morton or Z index to.
- * @param cols The columns to order by in descending order or precedence.
- */
-class Morton(val df: DataFrame, val cols: Array[String]) extends SparkSessionWrapper {
+/** Morton Ordering (Z ordering) is a method to map a multidimensional index down to
+  * 1D. We do this be determine the z-index which we can sort by.
+  *
+  * @param df   Dataframe we wish to apply a Morton or Z index to.
+  * @param cols The columns to order by in descending order or precedence.
+  */
+class Morton(val df: DataFrame, val cols: Array[String])
+    extends SparkSessionWrapper {
 
   import spark.implicits._
 
   private val interleaved: InterleaveBits = new InterleaveBits(df, cols)
 
-  /**
-   * Creates the z-index column in the dataframe.
-   *
-   * @return Returns the original dataframe with the additional z-index column.
-   */
+  /** Creates the z-index column in the dataframe.
+    *
+    * @return Returns the original dataframe with the additional z-index column.
+    */
   def mortonIndex(): DataFrame = {
 
     val toIndex: DataFrame = interleaved.getBinaryDF
       .withColumn("size", lit(cols.length))
-      .withColumn("struct_bits",
-        struct(Seq(col("size")) ++ cols.map(c => col(c + "_binary")): _*))
+      .withColumn(
+        "struct_bits",
+        struct(Seq(col("size")) ++ cols.map(c => col(c + "_binary")): _*)
+      )
       .drop(Seq("size") ++ cols.map(c => c + "_binary"): _*)
 
-    toIndex.withColumn("z_index", interleaved.interleaveBits($"struct_bits")).drop("struct_bits")
+    toIndex
+      .withColumn("z_index", Udfs.interleaveBitsUdf($"struct_bits"))
+      .drop("struct_bits")
   }
 }
