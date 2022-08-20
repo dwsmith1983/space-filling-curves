@@ -22,6 +22,7 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: 'sbt'
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
     - name: Compile
       run: sbt compile
     - name: Run tests

@@ -21,6 +21,7 @@ jobs:
         with:
           java-version: '11'
           distribution: 'adopt'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Run tests
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_READ_WRITE }}
