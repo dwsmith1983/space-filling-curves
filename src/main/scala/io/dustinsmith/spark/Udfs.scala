@@ -34,11 +34,10 @@ object Udfs {
     // transpose and concat
     arrayOfBinaryStrings
       .map(binaryString =>
-        binaryString + "-" * (maLength - binaryString.length)
+        "0" * (maLength - binaryString.length) + binaryString
       )
       .transpose
       .flatten
       .mkString("")
-      .replaceAll("-", "")
   }
 }

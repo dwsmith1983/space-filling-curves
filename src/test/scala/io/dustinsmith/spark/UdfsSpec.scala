@@ -23,16 +23,18 @@ class UdfsSpec extends AnyWordSpec with Matchers {
   "interleaveBits" should {
     "interleave the binary bit columns 2" in {
       val binaryArray: Seq[String] = Array("1111", "00000")
-      Udfs.interleaveBits(binaryArray) should equal("101010100")
+      Udfs.interleaveBits(binaryArray) should equal("0010101010")
     }
     "interleave the binary bit columns 3" in {
       val binaryArray: Seq[String] = Array("1010111", "11111011", "11")
-      Udfs.interleaveBits(binaryArray) should equal("11101111011110111")
+      Udfs.interleaveBits(binaryArray) should equal("010110010110010100111111")
     }
     "interleave the binary bit columns 4" in {
       val binaryArray: Seq[String] =
         Array("1010111", "11111011", "10101", "10001")
-      Udfs.interleaveBits(binaryArray) should equal("1111010011100100111110111")
+      Udfs.interleaveBits(binaryArray) should equal(
+        "01001100010011110100101011001111"
+      )
     }
   }
 }

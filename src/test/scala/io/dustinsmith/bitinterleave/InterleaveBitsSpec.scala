@@ -18,7 +18,6 @@ package io.dustinsmith.bitinterleave
 import io.dustinsmith.{HashDataFrame, SparkSessionTestWrapper}
 import java.io.File
 import scala.reflect.io.Directory
-
 import org.scalatest.{BeforeAndAfterAll, PrivateMethodTester}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec

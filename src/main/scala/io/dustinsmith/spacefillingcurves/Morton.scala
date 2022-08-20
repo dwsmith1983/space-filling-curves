@@ -42,13 +42,13 @@ class Morton(val df: DataFrame, val cols: Array[String])
     val toIndex: DataFrame = interleaved.getBinaryDF
       .withColumn("size", lit(cols.length))
       .withColumn(
-        "struct_bits",
-        struct(Seq(col("size")) ++ cols.map(c => col(c + "_binary")): _*)
+        "array_bits",
+        array(cols.map(c => col(c + "_binary")): _*)
       )
       .drop(Seq("size") ++ cols.map(c => c + "_binary"): _*)
 
     toIndex
-      .withColumn("z_index", Udfs.interleaveBitsUdf($"struct_bits"))
-      .drop("struct_bits")
+      .withColumn("z_index", Udfs.interleaveBitsUdf($"array_bits"))
+      .drop("array_bits")
   }
 }
