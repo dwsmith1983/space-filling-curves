@@ -28,13 +28,13 @@ object Udfs {
     */
   def interleaveBits(arrayOfBinaryStrings: Seq[String]): String = {
     // expects to get an Array of binary strings
-    // 1 find longest string in a sequence
-    val maLength = arrayOfBinaryStrings.maxBy(_.length).length
+    // find longest string in a sequence
+    val maxLength = arrayOfBinaryStrings.maxBy(_.length).length
     // make all strings the same size
     // transpose and concat
     arrayOfBinaryStrings
       .map(binaryString =>
-        "0" * (maLength - binaryString.length) + binaryString
+        "0" * (maxLength - binaryString.length) + binaryString
       )
       .transpose
       .flatten
