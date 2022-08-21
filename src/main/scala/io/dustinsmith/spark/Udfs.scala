@@ -16,7 +16,6 @@
 
 package io.dustinsmith.spark
 
-import org.apache.spark.sql.Row
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.udf
 
