@@ -20,15 +20,15 @@ jobs:
 
       - name: Build with Maven
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_READ_WRITE }}
         run: sbt test
 
       - name: Build with Maven
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_READ_WRITE }}
         run: sbt package
 
       - name: Publish with Maven
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_READ_WRITE }}
         run: sbt publish
