@@ -33,7 +33,12 @@ class InterleaveBits(val df: DataFrame, val cols: Array[String]) extends SparkSe
   }
 
   private val columnTypes: Seq[(String, String)] = matchColumnWithType()
-  private val nonString = columnTypes.filter(t => t._2 != "StringType")
+  private val intType: Seq[(String, String)] = columnTypes.filter(
+    t => Seq("ByteType", "ShortType", "IntegerType", "LongType").contains(t._2)
+  )
+  private val doubleType: Seq[(String, String)]  = columnTypes.filter(
+    t => Seq("FloatType", "DoubleType", "DecimalType").contains(t._2)
+  )
   private val stringType = columnTypes.filter(t => t._2 == "StringType")
 
   /**
@@ -114,9 +119,9 @@ class InterleaveBits(val df: DataFrame, val cols: Array[String]) extends SparkSe
    */
   private def getNonStringBinaryDF: DataFrame = {
 
-    if (nonString.nonEmpty) {
+    if (intType.nonEmpty) {
       df
-        .select($"*" +: nonString.map(tup => getBinaryFunc(tup._2)(col(tup._1)).alias(tup._1 + "_binary")): _*)
+        .select($"*" +: intType.map(tup => toBinaryFormat(bin(col(tup._1))).alias(tup._1 + "_binary")): _*)
     }
     else df
   }
