@@ -1,4 +1,24 @@
 [![Space Filling Curve CI](https://github.com/dwsmith1983/space-filling-curves/actions/workflows/scala-test.yml/badge.svg?branch=main)](https://github.com/dwsmith1983/space-filling-curves/actions/workflows/scala-test.yml)
+# Development 
+For development, we need to install overcommit. This can be installed through Ruby. See instructions how
+[here](https://github.com/sds/overcommit). Once installed, run `overcommit --install` in this directory.
+This will run the pre-commit hook for scalastyle.
+```bash
+base ❯ git commit -m 'added overcommit for hooks'
+Running pre-commit hooks
+
+✓ All pre-commit hooks passed
+
+Running commit-msg hooks
+Check subject line................................[SingleLineSubject] OK
+Check subject capitalization.....................[CapitalizedSubject] WARNING
+Subject should start with a capital letter
+Check for trailing periods in subject................[TrailingPeriod] OK
+Check text width..........................................[TextWidth] OK
+
+⚠ All commit-msg hooks passed, but with warnings
+```
+
 # Space Filling Curves
 Space filling curves allow us to represent an n-dimensional curve
 in one dimensional while preserving locality. Techniques such as
