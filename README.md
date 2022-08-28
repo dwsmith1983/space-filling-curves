@@ -54,6 +54,7 @@ records. First, I converted the `csv` to `parquet` with defualt compression of `
 | Parquet    | gzip        | 1                    | Semi-linear  | 269.81    |
 | Parquet    | gzip        | 1                    | Z-order      |           |
 | Parquet    | gzip        | 1                    | Hilbert      |           |
+
 which resulted in `13` leaf files all approximately `38` MB for a total size of `0.459` GB.
 
 # Work in Progress
