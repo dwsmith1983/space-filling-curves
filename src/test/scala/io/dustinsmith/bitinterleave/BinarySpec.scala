@@ -17,13 +17,13 @@ package io.dustinsmith.bitinterleave
 
 import io.dustinsmith.SparkSessionTestWrapper
 import io.dustinsmith.bitinterleave.Binary.getBinaryFunc
-import org.apache.spark.sql.expressions.UserDefinedFunction
+import java.io.File
+import org.scalatest.{BeforeAndAfterAll, PrivateMethodTester}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.{BeforeAndAfterAll, PrivateMethodTester}
-
-import java.io.File
 import scala.reflect.io.Directory
+
+import org.apache.spark.sql.expressions.UserDefinedFunction
 
 class BinarySpec
     extends AnyWordSpec
@@ -32,10 +32,10 @@ class BinarySpec
     with BeforeAndAfterAll
     with SparkSessionTestWrapper {
 
-  /** The proxy methods test the functionality of the UDFs in Binary. I cannot think of away to test
-    * the UDFS in a dataframe.
-    * If anyone knows how test like this should be done, let me know.
-    */
+  /* The proxy methods test the functionality of the UDFs in Binary. I cannot think of away to test
+   * the UDFS in a dataframe.
+   * If anyone knows how test like this should be done, let me know.
+   */
   def proxyIntToBinary(i: Long): String = i.toBinaryString
 
   def proxyDoubleToBinary(i: Double): String =

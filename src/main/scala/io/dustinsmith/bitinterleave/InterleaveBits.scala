@@ -43,26 +43,26 @@ class InterleaveBits(val df: DataFrame, val cols: Array[String])
   )
   private val stringType = columnTypes.filter(t => t._2 == "StringType")
 
-  /** Matches the column name with the data type.
-    *
-    * @return A sequence of 2 tuples (col_name, col_data_type).
-    */
+  /* Matches the column name with the data type.
+   *
+   * @return A sequence of 2 tuples (col_name, col_data_type).
+   */
   private def matchColumnWithType(): Seq[(String, String)] = {
 
     df.schema
       .map(structField =>
-        if (cols.contains(structField.name))
+        if (cols.contains(structField.name)) {
           (structField.name, structField.dataType.toString)
-        else null
+        } else null
       )
       .filter(_ != null)
   }
 
-  /** Appends a binary column proxy value for string columns with the
-    * previously determined binary value for numerical columns.
-    *
-    * @return Dataframe with binary values for the columns to z-index.
-    */
+  /* Appends a binary column proxy value for string columns with the
+   * previously determined binary value for numerical columns.
+   *
+   * @return Dataframe with binary values for the columns to z-index.
+   */
   def getBinaryDF: DataFrame = {
 
     val dfNonStringBinary: DataFrame = getNonStringBinaryDF
@@ -106,10 +106,10 @@ class InterleaveBits(val df: DataFrame, val cols: Array[String])
     } else dfNonStringBinary
   }
 
-  /** Return the dataframe with binary columns for the numerical datatypes.
-    *
-    * @return Dataframe binary values for the numerical columns to z-index.
-    */
+  /* Return the dataframe with binary columns for the numerical datatypes.
+   *
+   * @return Dataframe binary values for the numerical columns to z-index.
+   */
   private def getNonStringBinaryDF: DataFrame = {
 
     if (intType.nonEmpty) {

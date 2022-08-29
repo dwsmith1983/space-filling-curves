@@ -23,8 +23,8 @@ object Udfs {
 
   val interleaveBitsUdf: UserDefinedFunction = udf(interleaveBits _)
 
-  /** UDF to interleave binary bits for the desired columns.
-    */
+  /* UDF to interleave binary bits for the desired columns.
+   */
   def interleaveBits(arrayOfBinaryStrings: Seq[String]): String = {
     // expects to get an Array of binary strings
     // find longest string in a sequence

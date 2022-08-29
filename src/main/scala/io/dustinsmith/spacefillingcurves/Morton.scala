@@ -17,15 +17,16 @@ package io.dustinsmith.spacefillingcurves
 
 import io.dustinsmith.bitinterleave.InterleaveBits
 import io.dustinsmith.spark.{SparkSessionWrapper, Udfs}
+
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
 
-/** Morton Ordering (Z ordering) is a method to map a multidimensional index down to
-  * 1D. We do this be determine the z-index which we can sort by.
-  *
-  * @param df   Dataframe we wish to apply a Morton or Z index to.
-  * @param cols The columns to order by in descending order or precedence.
-  */
+/* Morton Ordering (Z ordering) is a method to map a multidimensional index down to
+ * 1D. We do this be determine the z-index which we can sort by.
+ *
+ * @param df   Dataframe we wish to apply a Morton or Z index to.
+ * @param cols The columns to order by in descending order or precedence.
+ */
 class Morton(val df: DataFrame, val cols: Array[String])
     extends SparkSessionWrapper {
 
@@ -33,10 +34,10 @@ class Morton(val df: DataFrame, val cols: Array[String])
 
   private val interleaved: InterleaveBits = new InterleaveBits(df, cols)
 
-  /** Creates the z-index column in the dataframe.
-    *
-    * @return Returns the original dataframe with the additional z-index column.
-    */
+  /* Creates the z-index column in the dataframe.
+   *
+   * @return Returns the original dataframe with the additional z-index column.
+   */
   def mortonIndex(): DataFrame = {
 
     val toIndex: DataFrame = interleaved.getBinaryDF

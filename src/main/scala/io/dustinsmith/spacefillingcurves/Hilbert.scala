@@ -16,6 +16,7 @@
 package io.dustinsmith.spacefillingcurves
 
 import io.dustinsmith.spark.SparkSessionWrapper
+
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.udf
@@ -27,19 +28,19 @@ class Hilbert(val df: DataFrame, val cols: Array[String])
 
   private val interleavedDF: DataFrame = new Morton(df, cols).mortonIndex()
 
-  /** Gray codes an integer value in binary and returns its new integer.
-    *
-    * @return Integer after bit hacking
-    */
+  /* Gray codes an integer value in binary and returns its new integer.
+   *
+   * @return Integer after bit hacking
+   */
   private def grayCode: UserDefinedFunction = udf { (colBinary: String) =>
     val colInt: Integer = Integer.parseInt(colBinary, 2)
     colInt ^ colInt >> 1
   }
 
-  /** Determines the Hilbert index from the z-index of Morton ordering.
-    *
-    * @return Dataframe with new hilbert_index column.
-    */
+  /* Determines the Hilbert index from the z-index of Morton ordering.
+   *
+   * @return Dataframe with new hilbert_index column.
+   */
   def hilbertIndex(): DataFrame = {
 
     interleavedDF

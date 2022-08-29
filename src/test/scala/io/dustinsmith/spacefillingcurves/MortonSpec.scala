@@ -16,14 +16,13 @@
 package io.dustinsmith.spacefillingcurves
 
 import io.dustinsmith.{HashDataFrame, SparkSessionTestWrapper}
-import org.apache.spark.sql.DataFrame
-
+import java.io.File
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-
-import java.io.File
 import scala.reflect.io.Directory
+
+import org.apache.spark.sql.DataFrame
 
 class MortonSpec
     extends AnyWordSpec
