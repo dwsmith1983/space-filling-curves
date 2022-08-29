@@ -15,36 +15,31 @@
  */
 package io.dustinsmith.bitinterleave
 
+import io.dustinsmith.SparkSessionTestWrapper
+import io.dustinsmith.bitinterleave.Binary.getBinaryFunc
 import java.io.File
-
-import Binary.getBinaryFunc
-import org.scalatest.BeforeAndAfterAll
-import org.scalatest.PrivateMethodTester
+import org.scalatest.{BeforeAndAfterAll, PrivateMethodTester}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import scala.reflect.io.Directory
 
-import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.expressions.UserDefinedFunction
 
+class BinarySpec
+    extends AnyWordSpec
+    with Matchers
+    with PrivateMethodTester
+    with BeforeAndAfterAll
+    with SparkSessionTestWrapper {
 
-class BinarySpec extends AnyWordSpec with Matchers with PrivateMethodTester with BeforeAndAfterAll {
-
-  val spark: SparkSession = SparkSession
-    .builder()
-    .appName("BinaryMethodTesting")
-    .master("local[2]")
-    .getOrCreate()
-
-  /**
-   * The proxy methods test the functionality of the UDFs in Binary. I cannot think of away to test
+  /* The proxy methods test the functionality of the UDFs in Binary. I cannot think of away to test
    * the UDFS in a dataframe.
    * If anyone knows how test like this should be done, let me know.
    */
   def proxyIntToBinary(i: Long): String = i.toBinaryString
 
-  def proxyDoubleToBinary(i: Double): String = java.lang.Long.toBinaryString(
-    java.lang.Double.doubleToRawLongBits(i))
+  def proxyDoubleToBinary(i: Double): String =
+    java.lang.Long.toBinaryString(java.lang.Double.doubleToRawLongBits(i))
 
   override def afterAll(): Unit = {
     new Directory(new File("spark-warehouse")).deleteRecursively
@@ -54,10 +49,13 @@ class BinarySpec extends AnyWordSpec with Matchers with PrivateMethodTester with
   "toBinaryFormat" should {
 
     "convert a binary string into n-bits by adding leading zeros if necessary" in {
-      val privateMethod: PrivateMethod[String] = PrivateMethod[String]('toBinaryFormat)
-      val resultStringAdd: String = Binary invokePrivate privateMethod("10110", 8)
+      val privateMethod: PrivateMethod[String] =
+        PrivateMethod[String]('toBinaryFormat)
+      val resultStringAdd: String =
+        Binary invokePrivate privateMethod("10110", 8)
       val expectedStringAdd: String = "00010110"
-      val resultString: String = Binary invokePrivate privateMethod("10010110", 8)
+      val resultString: String =
+        Binary invokePrivate privateMethod("10010110", 8)
       val expectedString: String = "10010110"
 
       assert(resultStringAdd == expectedStringAdd)
@@ -99,7 +97,9 @@ class BinarySpec extends AnyWordSpec with Matchers with PrivateMethodTester with
       // in Spark, they should cast the same in the dataframe; will tested later
       val binaryRes: String = proxyDoubleToBinary(1.5)
 
-      assert(binaryRes == "11111111111000000000000000000000000000000000000000000000000000")
+      assert(
+        binaryRes == "11111111111000000000000000000000000000000000000000000000000000"
+      )
     }
   }
 
@@ -107,7 +107,7 @@ class BinarySpec extends AnyWordSpec with Matchers with PrivateMethodTester with
 
     "throw an exceptiong for wrong column types" in {
       val wrongType: String = "TimestampType"
-      val thrown: Exception = the [Exception] thrownBy getBinaryFunc(wrongType)
+      val thrown: Exception = the[Exception] thrownBy getBinaryFunc(wrongType)
 
       thrown.getMessage should equal(
         "Binary function must receive a column string name of Integer, Long, Double, or Float."

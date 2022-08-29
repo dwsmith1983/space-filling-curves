@@ -15,30 +15,23 @@
  */
 package io.dustinsmith.bitinterleave
 
-import io.dustinsmith.HashDataFrame
+import io.dustinsmith.{HashDataFrame, SparkSessionTestWrapper}
 import java.io.File
 import org.scalatest.{BeforeAndAfterAll, PrivateMethodTester}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import scala.reflect.io.Directory
 
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.DataFrame
 
-
-class InterleaveBitsSpec extends AnyWordSpec with Matchers with PrivateMethodTester with BeforeAndAfterAll {
-
-  val spark: SparkSession = SparkSession
-    .builder()
-    .appName("InterleaveBitsTest")
-    .master("local[2]")
-    .getOrCreate()
+class InterleaveBitsSpec
+    extends AnyWordSpec
+    with Matchers
+    with PrivateMethodTester
+    with BeforeAndAfterAll
+    with SparkSessionTestWrapper {
 
   import spark.implicits._
-
-  override def afterAll(): Unit = {
-    new Directory(new File("spark-warehouse")).deleteRecursively
-    super.afterAll()
-  }
 
   val df: DataFrame = Seq(
     (1, 1, 12.23, "a", "m"),
@@ -49,28 +42,23 @@ class InterleaveBitsSpec extends AnyWordSpec with Matchers with PrivateMethodTes
   ).toDF("x", "y", "amnt", "id", "sex")
   val interleaveNum: InterleaveBits = new InterleaveBits(df, Array("x", "y"))
   val interleaveStr: InterleaveBits = new InterleaveBits(df, Array("id", "sex"))
-  val interleaveMixed: InterleaveBits = new InterleaveBits(df, Array("x", "id", "amnt"))
+  val interleaveMixed: InterleaveBits =
+    new InterleaveBits(df, Array("x", "id", "amnt"))
 
-  /**
-   * The proxy methods test the functionality of the UDFs in Binary. I cannot think of away to test
-   * the UDFS in a dataframe.
-   * If anyone knows how test like this should be done, let me know.
-   */
-  def proxyInterleaveBits(dataArray: Array[String]): String = {
-
-    val bits: Array[Int] = (0 until 5).toArray
-
-    bits
-      .map(c => dataArray.map(bin => bin(c).toString).mkString(""))
-      .reduceLeft((x, y) => x + y)}
+  override def afterAll(): Unit = {
+    new Directory(new File("spark-warehouse")).deleteRecursively
+    super.afterAll()
+  }
 
   "matchColumnWithType numeric columns" should {
 
     "return a tuple with column and data type" in {
       val privateMethod: PrivateMethod[Seq[(String, String)]] =
         PrivateMethod[Seq[(String, String)]]('matchColumnWithType)
-      val resultArray: Seq[(String, String)] = interleaveNum invokePrivate privateMethod()
-      val expectedArray: Seq[(String, String)] = Seq(("x", "IntegerType"), ("y", "IntegerType"))
+      val resultArray: Seq[(String, String)] =
+        interleaveNum invokePrivate privateMethod()
+      val expectedArray: Seq[(String, String)] =
+        Seq(("x", "IntegerType"), ("y", "IntegerType"))
 
       assert(resultArray == expectedArray)
     }
@@ -81,8 +69,10 @@ class InterleaveBitsSpec extends AnyWordSpec with Matchers with PrivateMethodTes
     "return a tuple with column and data type" in {
       val privateMethod: PrivateMethod[Seq[(String, String)]] =
         PrivateMethod[Seq[(String, String)]]('matchColumnWithType)
-      val resultArray: Seq[(String, String)] = interleaveMixed invokePrivate privateMethod()
-      val expectedArray: Seq[(String, String)] = Seq(("x", "IntegerType"), ("amnt", "DoubleType"), ("id", "StringType"))
+      val resultArray: Seq[(String, String)] =
+        interleaveMixed invokePrivate privateMethod()
+      val expectedArray: Seq[(String, String)] =
+        Seq(("x", "IntegerType"), ("amnt", "DoubleType"), ("id", "StringType"))
 
       assert(resultArray == expectedArray)
     }
@@ -91,7 +81,8 @@ class InterleaveBitsSpec extends AnyWordSpec with Matchers with PrivateMethodTes
   "getNonStringBinaryDF str columns" should {
 
     "return the original dataframe" in {
-      val privateMethod: PrivateMethod[DataFrame] = PrivateMethod[DataFrame]('getNonStringBinaryDF)
+      val privateMethod: PrivateMethod[DataFrame] =
+        PrivateMethod[DataFrame]('getNonStringBinaryDF)
       val resultDF: DataFrame = interleaveStr invokePrivate privateMethod()
       val resultChecksum: Int = HashDataFrame.checksumDataFrame(resultDF, 1)
       val expectedChecksum: Int = HashDataFrame.checksumDataFrame(df, 1)
@@ -103,7 +94,8 @@ class InterleaveBitsSpec extends AnyWordSpec with Matchers with PrivateMethodTes
   "getNonStringBinaryDF num columns" should {
 
     "return the original dataframe with the binary columns for numeric" in {
-      val privateMethod: PrivateMethod[DataFrame] = PrivateMethod[DataFrame]('getNonStringBinaryDF)
+      val privateMethod: PrivateMethod[DataFrame] =
+        PrivateMethod[DataFrame]('getNonStringBinaryDF)
       val resultDF: DataFrame = interleaveNum invokePrivate privateMethod()
       val resultChecksum: Int = HashDataFrame.checksumDataFrame(resultDF, 1)
       val expectedDF: DataFrame = spark.read
@@ -118,7 +110,8 @@ class InterleaveBitsSpec extends AnyWordSpec with Matchers with PrivateMethodTes
   "getBinaryDF str columns" should {
 
     "return the original dataframe with the binary columns for strings" in {
-      val privateMethod: PrivateMethod[DataFrame] = PrivateMethod[DataFrame]('getBinaryDF)
+      val privateMethod: PrivateMethod[DataFrame] =
+        PrivateMethod[DataFrame]('getBinaryDF)
       val resultDF: DataFrame = interleaveStr invokePrivate privateMethod()
       val resultChecksum: Int = HashDataFrame.checksumDataFrame(resultDF, 1)
       val expectedDF: DataFrame = spark.read
@@ -133,7 +126,8 @@ class InterleaveBitsSpec extends AnyWordSpec with Matchers with PrivateMethodTes
   "getBinaryDF num columns" should {
 
     "return the original dataframe with the binary columns for numeric" in {
-      val privateMethod: PrivateMethod[DataFrame] = PrivateMethod[DataFrame]('getBinaryDF)
+      val privateMethod: PrivateMethod[DataFrame] =
+        PrivateMethod[DataFrame]('getBinaryDF)
       val resultDF: DataFrame = interleaveNum invokePrivate privateMethod()
       val resultChecksum: Int = HashDataFrame.checksumDataFrame(resultDF, 1)
       val expectedDF: DataFrame = spark.read
@@ -148,7 +142,8 @@ class InterleaveBitsSpec extends AnyWordSpec with Matchers with PrivateMethodTes
   "getBinaryDF mixed columns" should {
 
     "return the original dataframe with the binary columns for numeric and string" in {
-      val privateMethod: PrivateMethod[DataFrame] = PrivateMethod[DataFrame]('getBinaryDF)
+      val privateMethod: PrivateMethod[DataFrame] =
+        PrivateMethod[DataFrame]('getBinaryDF)
       val resultDF: DataFrame = interleaveMixed invokePrivate privateMethod()
       val resultChecksum: Int = HashDataFrame.checksumDataFrame(resultDF, 1)
       val expectedDF: DataFrame = spark.read
@@ -157,17 +152,6 @@ class InterleaveBitsSpec extends AnyWordSpec with Matchers with PrivateMethodTes
       val expectedChecksum: Int = HashDataFrame.checksumDataFrame(expectedDF, 1)
 
       assert(resultChecksum == expectedChecksum)
-    }
-  }
-
-  // TODO: Figure out testing UDF
-  "interleaveBits" should {
-
-    "interleave the binary bit columns" in {
-      val binaryArray: Array[String] = Array("11010", "01001")
-      val resultInterleaved: String = proxyInterleaveBits(binaryArray)
-
-      assert(resultInterleaved == "1011001001")
     }
   }
 }

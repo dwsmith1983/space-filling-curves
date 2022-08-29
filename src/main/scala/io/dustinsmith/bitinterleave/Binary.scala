@@ -30,17 +30,19 @@ object Binary {
    * @param digits Number of bits; default 64.
    * @return Binary string with leading zeros to convert to 64bits; used for interleaving.
    */
-  private def toBinaryFormat(i: String, digits: Int = 64): String = {
+  def binaryFormat(i: String, digits: Int = 64): String = {
 
     String.format("%" + digits + "s", i).replace(' ', '0')
   }
 
+  def toBinaryFormat: UserDefinedFunction = udf((c: String) =>
+    String.format("%" + 64 + "s", c).replace(' ', '0')
+  )
+
   /**
    * UDFs for converting Short, Int, Long and Float, Double, Decimal to binary string.
    */
-  private def intToBinary: UserDefinedFunction = udf((c: Long) => toBinaryFormat(c.toBinaryString))
-
-  private def doubleToBinary: UserDefinedFunction = udf((c: Double) => toBinaryFormat(java.lang.Long.toBinaryString(
+  private def doubleToBinary: UserDefinedFunction = udf((c: Double) => binaryFormat(java.lang.Long.toBinaryString(
     java.lang.Double.doubleToRawLongBits(c)))
   )
 
@@ -52,7 +54,7 @@ object Binary {
    */
   def getBinaryFunc(typeName: String): UserDefinedFunction = typeName match {
 
-    case typeName if Seq("IntegerType", "LongType", "ShortType").contains(typeName) => intToBinary
+    case typeName if Seq("IntegerType", "LongType", "ShortType").contains(typeName) => toBinaryFormat
     case typeName if Seq("FloatType", "DoubleType", "DecimalType").contains(typeName) => doubleToBinary
     case _ => throw new Exception(
       "Binary function must receive a column string name of Integer, Long, Double, or Float."

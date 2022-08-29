@@ -15,20 +15,18 @@
  */
 package io.dustinsmith
 
+import io.dustinsmith.spark.SparkSessionWrapper
 import scala.util.hashing.MurmurHash3
 
 import org.apache.spark.sql.functions.{col, hash}
 
-
-/**
- * Helper object to compare dataframes without using Holdenkarau (has some problems with Spark 3)
+/* Helper object to compare dataframes without using Holdenkarau (has some problems with Spark 3)
  */
 object HashDataFrame extends SparkSessionWrapper {
 
   import spark.implicits._
 
-  /**
-   * Computes a checksum on the entire contents of the supplied DataFrame. Checksum values can be used to confirm that
+  /* Computes a checksum on the entire contents of the supplied DataFrame. Checksum values can be used to confirm that
    * dataframe contents are unchanged after operations that MUST NOT alter actual data
    * (e.g. HDFS leaf file compaction, etc)
    *
@@ -42,7 +40,10 @@ object HashDataFrame extends SparkSessionWrapper {
    *                 remain the same across comparisons.
    * @return Checksum for dataframe.
    */
-  def checksumDataFrame(df: org.apache.spark.sql.DataFrame, numParts: Int): Int = {
+  def checksumDataFrame(
+      df: org.apache.spark.sql.DataFrame,
+      numParts: Int
+  ): Int = {
 
     MurmurHash3.orderedHash(
       df

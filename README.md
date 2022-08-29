@@ -1,4 +1,24 @@
 [![Space Filling Curve CI](https://github.com/dwsmith1983/space-filling-curves/actions/workflows/scala-test.yml/badge.svg?branch=main)](https://github.com/dwsmith1983/space-filling-curves/actions/workflows/scala-test.yml)
+# Development 
+For development, we need to install overcommit. This can be installed through Ruby. See instructions how
+[here](https://github.com/sds/overcommit). Once installed, run `overcommit --install` in this directory.
+This will run the pre-commit hook for scalastyle.
+```bash
+base ❯ git commit -m 'added overcommit for hooks'
+Running pre-commit hooks
+
+✓ All pre-commit hooks passed
+
+Running commit-msg hooks
+Check subject line................................[SingleLineSubject] OK
+Check subject capitalization.....................[CapitalizedSubject] WARNING
+Subject should start with a capital letter
+Check for trailing periods in subject................[TrailingPeriod] OK
+Check text width..........................................[TextWidth] OK
+
+⚠ All commit-msg hooks passed, but with warnings
+```
+
 # Space Filling Curves
 Space filling curves allow us to represent an n-dimensional curve
 in one dimensional while preserving locality. Techniques such as
@@ -13,10 +33,12 @@ process large chunks of data.
 ```
 Spark-2.3.1 on Scala 2.11.12 
 Spark-2.4.7 on Scala 2.11.12 and Scala 2.12.13
-Spark-3.1.0 on Scala 2.12.13 Java 11
+Spark-3.1.0 on Scala 2.12.13 Java 11 version 0.1.0 and 0.2.0
 ```
 
 # Usage
+How to determine Morton (Z) or Hilbert Ordering.
+## Morton (Z Order)
 Given the dataframe below, we want to Morton (Z Order) our data by `id`, `x`, `y`
 ```scala
 // Currently, this isn't setup to use Maven. 
@@ -35,11 +57,29 @@ val mortonOrdering: Morton = new Morton(df, orderingCols)
 val zIndexedDF: DataFrame = mortonOrdering
   .mortonIndex.sort("z_index")
 ```
+## Hilbert Order
+Hilbert is only available in version 0.2.0 on Spark 3.
+
+# Benefits
+How do space filling curves benefit? Let's consider the Chicago crime data set available
+at [Crimes - 2001 to Preset](https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-Present/ijzp-q8t2).
+This data was pulled on 8 August 2021. The downloaded `csv` file is `1.74` GB and `7374374`
+records. First, I converted the `csv` to `parquet` with defualt compression of `snappy`.
+
+| File Type  | Compression | Number of Leaf Files | Optimization | Size (MB) |
+| ---------- | ----------: | -------------------: | -----------: | --------: |
+| CSV        | None        | 1                    | None         | 1781.76   |
+| Parquet    | Snappy      | 13                   | None         | 470.02    |
+| Parquet    | gzip        | 13                   | None         | 315.22    |
+| Parquet    | gzip        | 1                    | Semi-linear  | 269.81    |
+| Parquet    | gzip        | 1                    | Z-order      |           |
+| Parquet    | gzip        | 1                    | Hilbert      |           |
+
+which resulted in `13` leaf files all approximately `38` MB for a total size of `0.459` GB.
 
 # Work in Progress
 * README
 * Better organization
-* Add other space filling curves: Hilbert, GeoHash, Peano
 
 # Help Needed
 Looking for help with those experienced with creating decent READMEs
